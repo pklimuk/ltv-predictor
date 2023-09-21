@@ -26,6 +26,10 @@ func (le LinearExtrapolator) Predict(al aggregator.AggregatedLTVsByKey, predicti
 }
 
 func linearExtrapolation(data []decimal.Decimal, predictLength decimal.Decimal) (*decimal.Decimal, error) {
+	// decrease the length by one to take into account index starting from 0
+	predictLength = predictLength.Sub(decimal.NewFromInt(1))
+
+	// at least two points are needed to extrapolate
 	if len(data) < 2 {
 		return nil, errors.New(ErrNotEnoughData)
 	}
