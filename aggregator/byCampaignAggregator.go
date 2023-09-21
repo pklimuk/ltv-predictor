@@ -14,7 +14,7 @@ func (a ByCampaignAggregator) AggregateRevenues(revenues []fileParser.Revenues) 
 				UsersCount: rec.UsersCount,
 			}
 		} else {
-			err := ar.addUserLtvToRevenues(rec.Revenues)
+			err := ar.addRevenues(rec.Revenues)
 			if err != nil {
 				return nil, err
 			}

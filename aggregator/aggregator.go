@@ -25,12 +25,12 @@ type AggregatedRevenuesByKey map[string]AggregatedRevenues
 type AggregatedLTVs []decimal.Decimal
 type AggregatedLTVsByKey map[string]AggregatedLTVs
 
-func (ar *AggregatedRevenues) addUserLtvToRevenues(ltv []decimal.Decimal) error {
-	if len(ltv) != len(ar.Revenues) {
+func (ar *AggregatedRevenues) addRevenues(revenues []decimal.Decimal) error {
+	if len(revenues) != len(ar.Revenues) {
 		return errors.New(ErrDifferentLength)
 	}
-	for i := 0; i < len(ltv); i++ {
-		ar.Revenues[i] = ar.Revenues[i].Add(ltv[i])
+	for i := 0; i < len(revenues); i++ {
+		ar.Revenues[i] = ar.Revenues[i].Add(revenues[i])
 	}
 	return nil
 }
@@ -39,7 +39,8 @@ func convertAggregatedByKeyRevenuesToLTVs(ar AggregatedRevenuesByKey) (Aggregate
 	var result AggregatedLTVsByKey = make(map[string]AggregatedLTVs)
 	for k, v := range ar {
 		ltvs := make([]decimal.Decimal, len(v.Revenues))
-		for i := 0; i < len(v.Revenues); i++ {
+		revsLen := len(v.Revenues)
+		for i := 0; i < revsLen; i++ {
 			if v.UsersCount == 0 {
 				return nil, errors.New(ErrDivisionByZero)
 			}
