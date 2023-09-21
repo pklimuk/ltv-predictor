@@ -26,7 +26,7 @@ func removeTempCSVFile(path string) error {
 	return os.Remove(path)
 }
 
-func TestCSVParser_Parse_P(t *testing.T) {
+func TestCSVParser_Parse(t *testing.T) {
 	// Sample CSV data
 	csvData := `UserId,CampaignId,Country,Ltv1,Ltv2,Ltv3,Ltv4,Ltv5,Ltv6,Ltv7
 		1,81855ad8-681d-4d86-91e9-1e00167939cb,TR,1.54996978744822,2.2526636056983,2.29863633234526,2.88400864327196,3.6960018085883,5.7144365110237,0
@@ -75,7 +75,7 @@ func TestCSVParser_Parse_P(t *testing.T) {
 	assert.Equal(t, expectedRevenues, revenues)
 }
 
-func TestCSVParser_Parse_InvalidFile_N(t *testing.T) {
+func TestCSVParser_Parse_InvalidFile(t *testing.T) {
 	parser := CSVParser{
 		Path: "invalid_file.csv",
 	}
@@ -86,7 +86,7 @@ func TestCSVParser_Parse_InvalidFile_N(t *testing.T) {
 	assert.Nil(t, revenues)
 }
 
-func TestCSVParser_Parse_EmptyCSV_N(t *testing.T) {
+func TestCSVParser_Parse_EmptyCSV(t *testing.T) {
 	// Test parsing an empty CSV file
 	emptyCSVData := ""
 
@@ -107,7 +107,7 @@ func TestCSVParser_Parse_EmptyCSV_N(t *testing.T) {
 	assert.Nil(t, revenues)
 }
 
-func TestCSVParser_Parse_InvalidCSV_WrongSeparator_N(t *testing.T) {
+func TestCSVParser_Parse_InvalidCSV_WrongSeparator(t *testing.T) {
 	// Test parsing an empty CSV file with only header
 	emptyCSVData := `UserId,CampaignId,Country,Ltv1,Ltv2,Ltv3,Ltv4,Ltv5,Ltv6,Ltv7
 		1;81855ad8-681d-4d86-91e9-1e00167939cb;TR;1.54996978744822;2.2526636056983;2.29863633234526;2.88400864327196;3.6960018085883;5.7144365110237;0`

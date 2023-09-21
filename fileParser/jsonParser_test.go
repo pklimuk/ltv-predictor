@@ -108,7 +108,7 @@ func TestJSONParser_Parse_Invalid_JSON(t *testing.T) {
 
 		revenues, err := parser.Parse()
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "invalid character123")
+		assert.Contains(t, err.Error(), "invalid character")
 		assert.Empty(t, revenues)
 	})
 
