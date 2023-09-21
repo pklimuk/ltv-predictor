@@ -52,7 +52,10 @@ func parseJSONFile(path string) ([]jsonData, error) {
 	}
 	defer jsonFile.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		return nil, err
+	}
 	var data []jsonData
 	err = json.Unmarshal(byteValue, &data)
 	if err != nil {

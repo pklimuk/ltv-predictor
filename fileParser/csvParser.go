@@ -2,9 +2,24 @@ package fileParser
 
 import (
 	"encoding/csv"
+	"errors"
+	"log"
 	"os"
 
 	"github.com/shopspring/decimal"
+)
+
+// Constants for CSV file
+const (
+	fieldsNumber    = 10
+	userIDIndex     = 0
+	campaignIDIndex = 1
+	countryIndex    = 2
+	startLtvIndex   = 3
+)
+
+const (
+	ErrNotEnoughFields = "not enough fields in the record"
 )
 
 type CSVParser struct {
@@ -19,10 +34,12 @@ func (p CSVParser) Parse() ([]Revenues, error) {
 	revenues := make([]Revenues, 0, len(records))
 	for _, record := range records {
 		revenue, err := convertCSVRecordToRevenues(record)
+		// If there is an error, we just skip the record and log it, to not break the whole process
 		if err != nil {
-			return nil, err
+			log.Printf("Record %v contains errors(%v) and could not be processed.", record, err)
+			continue
 		}
-		revenues = append(revenues, revenue)
+		revenues = append(revenues, *revenue)
 	}
 	return revenues, nil
 }
@@ -47,28 +64,31 @@ func parseCSV(path string) ([][]string, error) {
 	return records, nil
 }
 
-func convertCSVRecordToRevenues(record []string) (Revenues, error) {
-	campaignID := record[1]
-	country := record[2]
-	var ltv = make([]decimal.Decimal, 0, len(record)-3)
+func convertCSVRecordToRevenues(record []string) (*Revenues, error) {
+	if len(record) != fieldsNumber {
+		return nil, errors.New(ErrNotEnoughFields)
+	}
+	campaignID := record[campaignIDIndex]
+	country := record[countryIndex]
+	var ltv = make([]decimal.Decimal, 0, len(record)-startLtvIndex)
 	for i := 3; i < len(record); i++ {
 		ltvValue, err := decimal.NewFromString(record[i])
 		if err != nil {
-			return Revenues{}, err
+			return nil, err
 		}
 		ltv = append(ltv, ltvValue)
-		normalizeLtv(&ltv)
+		normalizeLtv(ltv)
 	}
-	return Revenues{Revenues: ltv, Country: country, CampaignID: campaignID, UsersCount: 1}, nil
+	return &Revenues{Revenues: ltv, Country: country, CampaignID: campaignID, UsersCount: 1}, nil
 }
 
 // normalizeLtv replaces zero values with the previous non-zero value
-func normalizeLtv(ltv *[]decimal.Decimal) {
-	prevLtv := (*ltv)[0]
-	for i := 1; i < len(*ltv); i++ {
-		if (*ltv)[i].Equal(decimal.Zero) {
-			(*ltv)[i] = prevLtv
+func normalizeLtv(ltv []decimal.Decimal) {
+	prevLtv := (ltv)[0]
+	for i := 1; i < len(ltv); i++ {
+		if (ltv)[i].Equal(decimal.Zero) {
+			(ltv)[i] = prevLtv
 		}
-		prevLtv = (*ltv)[i]
+		prevLtv = (ltv)[i]
 	}
 }
