@@ -5,6 +5,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const (
+	ErrNotEnoughData = "not enough data to extrapolate"
+)
+
 type PredictedLTVs map[string]decimal.Decimal
 
 type Predictor interface {

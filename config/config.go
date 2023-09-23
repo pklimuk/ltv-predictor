@@ -86,6 +86,8 @@ func createPredictor(f *flagsParser.Flags) (predictor.Predictor, error) {
 	switch f.Model {
 	case "linearExtrapolation":
 		return predictor.LinearExtrapolator{}, nil
+	case "linearRegression":
+		return predictor.LinearRegressor{}, nil
 	default:
 		return nil, errors.New(ErrUnknownModel)
 	}

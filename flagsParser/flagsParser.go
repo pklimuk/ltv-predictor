@@ -14,7 +14,7 @@ type Flags struct {
 }
 
 func ParseFlags() *Flags {
-	model := flag.String("model", "linearExtrapolation", "Model to use for prediction(linearExtrapolation)")
+	model := flag.String("model", "linearExtrapolation", "Model to use for prediction(linearExtrapolation|linearRegression)")
 	source := flag.String("source", "", "Path to the source file")
 	aggregateBy := flag.String("aggregate", "country", "Field to aggregate by(country|campaign)")
 	predictionLength := flag.Int64("predictionLength", DefaultPredictionLength, "Length of prediction in days")

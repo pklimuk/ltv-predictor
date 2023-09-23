@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
+	gonum.org/v1/gonum v0.14.0
 )
 
 require (

@@ -7,14 +7,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const (
-	ErrNotEnoughData = "not enough data to extrapolate"
-)
-
 type LinearExtrapolator struct{}
 
 func (le LinearExtrapolator) Predict(al aggregator.AggregatedLTVsByKey, predictionLength int64) (PredictedLTVs, error) {
-	var result PredictedLTVs = make(map[string]decimal.Decimal, len(al))
+	var result = make(map[string]decimal.Decimal, len(al))
 	for k, v := range al {
 		predictedLTV, err := linearExtrapolation(v, decimal.NewFromInt(predictionLength))
 		if err != nil {
