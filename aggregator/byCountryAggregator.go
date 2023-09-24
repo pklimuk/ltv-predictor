@@ -1,12 +1,17 @@
 package aggregator
 
 import (
+	"fmt"
+
 	"github.com/pklimuk/ltv-predictor/fileParser"
 )
 
 type ByCountryAggregator struct{}
 
 func (a ByCountryAggregator) AggregateRevenues(revenues []fileParser.Revenues) (AggregatedRevenuesByKey, error) {
+	if len(revenues) == 0 {
+		return nil, fmt.Errorf(ErrAggregatorError.Error(), ErrNoDataToAggregate)
+	}
 	var result AggregatedRevenuesByKey = make(map[string]AggregatedRevenues)
 	for i := 0; i < len(revenues); i++ {
 		rec := revenues[i]
@@ -18,7 +23,7 @@ func (a ByCountryAggregator) AggregateRevenues(revenues []fileParser.Revenues) (
 		} else {
 			err := ar.addRevenues(rec.Revenues)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf(ErrAggregatorError.Error(), err)
 			}
 			ar.UsersCount += rec.UsersCount
 			result[rec.Country] = ar
@@ -28,5 +33,9 @@ func (a ByCountryAggregator) AggregateRevenues(revenues []fileParser.Revenues) (
 }
 
 func (a ByCountryAggregator) ConvertAggregatedByKeyRevenuesToLTVs(ar AggregatedRevenuesByKey) (AggregatedLTVsByKey, error) {
-	return convertAggregatedByKeyRevenuesToLTVs(ar)
+	ltvs, err := convertAggregatedByKeyRevenuesToLTVs(ar)
+	if err != nil {
+		return nil, fmt.Errorf(ErrAggregatorError.Error(), err)
+	}
+	return ltvs, nil
 }

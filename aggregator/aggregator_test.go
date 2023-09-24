@@ -47,7 +47,7 @@ func TestAggregatedRevenues_addRevenues_differentLength(t *testing.T) {
 
 	// Assertions
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrDifferentLength, err.Error())
+	assert.Equal(t, ErrDifferentLength, err)
 }
 
 func TestConvertAggregatedByKeyRevenuesToLTVs(t *testing.T) {
@@ -95,5 +95,5 @@ func TestConvertAggregatedByKeyRevenuesToLTVs_DivisionByZero(t *testing.T) {
 
 	// Assertions
 	assert.NotNil(t, err)
-	assert.Equal(t, ErrDivisionByZero, err.Error())
+	assert.Equal(t, ErrDivisionByZero, err)
 }

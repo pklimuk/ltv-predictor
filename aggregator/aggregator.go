@@ -7,9 +7,11 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const (
-	ErrDivisionByZero  = "division by zero"
-	ErrDifferentLength = "ltv and revenues slices have different length"
+var (
+	ErrAggregatorError   = errors.New("aggregator error: %w")
+	ErrNoDataToAggregate = errors.New("no data to aggregate")
+	ErrDivisionByZero    = errors.New("division by zero")
+	ErrDifferentLength   = errors.New("ltv and revenues slices have different length")
 )
 
 type Aggregator interface {
@@ -27,7 +29,7 @@ type AggregatedLTVsByKey map[string]AggregatedLTVs
 
 func (ar *AggregatedRevenues) addRevenues(revenues []decimal.Decimal) error {
 	if len(revenues) != len(ar.Revenues) {
-		return errors.New(ErrDifferentLength)
+		return ErrDifferentLength
 	}
 	for i := 0; i < len(revenues); i++ {
 		ar.Revenues[i] = ar.Revenues[i].Add(revenues[i])
@@ -42,7 +44,7 @@ func convertAggregatedByKeyRevenuesToLTVs(ar AggregatedRevenuesByKey) (Aggregate
 		revsLen := len(v.Revenues)
 		for i := 0; i < revsLen; i++ {
 			if v.UsersCount == 0 {
-				return nil, errors.New(ErrDivisionByZero)
+				return nil, ErrDivisionByZero
 			}
 			ltvs[i] = v.Revenues[i].Div(decimal.NewFromInt(v.UsersCount))
 		}

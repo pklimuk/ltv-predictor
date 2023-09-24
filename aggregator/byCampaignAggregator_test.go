@@ -42,7 +42,17 @@ func TestByCampaignAggregator_AggregateRevenues_DifferentLengthError(t *testing.
 
 	result, err := aggregator.AggregateRevenues(revenues)
 	assert.Error(t, err)
-	assert.Equal(t, err.Error(), ErrDifferentLength)
+	assert.Equal(t, "aggregator error: ltv and revenues slices have different length", err.Error())
+	assert.Nil(t, result)
+}
+
+func TestByCampaignAggregator_AggregateRevenues_No_Data(t *testing.T) {
+	aggregator := ByCampaignAggregator{}
+	revenues := []fileParser.Revenues{}
+
+	result, err := aggregator.AggregateRevenues(revenues)
+	assert.Error(t, err)
+	assert.Equal(t, "aggregator error: no data to aggregate", err.Error())
 	assert.Nil(t, result)
 }
 
@@ -68,4 +78,19 @@ func TestByCampaignAggregator_ConvertAggregatedByKeyRevenuesToLTVs(t *testing.T)
 			}
 		}
 	}
+}
+
+func TestByCampaignAggregator_ConvertAggregatedByKeyRevenuesToLTVs_DivisionByZero(t *testing.T) {
+	aggregator := ByCampaignAggregator{}
+	aggregatedRevenues := AggregatedRevenuesByKey{
+		"campaign1": {
+			Revenues:   []decimal.Decimal{decimal.NewFromFloat(250), decimal.NewFromFloat(500)},
+			UsersCount: 0,
+		},
+	}
+
+	result, err := aggregator.ConvertAggregatedByKeyRevenuesToLTVs(aggregatedRevenues)
+	assert.Error(t, err)
+	assert.Equal(t, "aggregator error: division by zero", err.Error())
+	assert.Nil(t, result)
 }

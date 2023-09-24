@@ -42,7 +42,17 @@ func TestByCountryAggregator_AggregateRevenues_DifferentLengthError(t *testing.T
 
 	result, err := aggregator.AggregateRevenues(revenues)
 	assert.Error(t, err)
-	assert.Equal(t, err.Error(), ErrDifferentLength)
+	assert.Equal(t, "aggregator error: ltv and revenues slices have different length", err.Error())
+	assert.Nil(t, result)
+}
+
+func TestByCountryAggregator_AggregateRevenues_No_Data(t *testing.T) {
+	aggregator := ByCountryAggregator{}
+	revenues := []fileParser.Revenues{}
+
+	result, err := aggregator.AggregateRevenues(revenues)
+	assert.Error(t, err)
+	assert.Equal(t, "aggregator error: no data to aggregate", err.Error())
 	assert.Nil(t, result)
 }
 
@@ -68,4 +78,19 @@ func TestByCountryAggregator_ConvertAggregatedByKeyRevenuesToLTVs(t *testing.T) 
 			}
 		}
 	}
+}
+
+func TestByCountryAggregator_ConvertAggregatedByKeyRevenuesToLTVs_DivisionByZero(t *testing.T) {
+	aggregator := ByCountryAggregator{}
+	aggregatedRevenues := AggregatedRevenuesByKey{
+		"US": {
+			Revenues:   []decimal.Decimal{decimal.NewFromFloat(250), decimal.NewFromFloat(500)},
+			UsersCount: 0,
+		},
+	}
+
+	result, err := aggregator.ConvertAggregatedByKeyRevenuesToLTVs(aggregatedRevenues)
+	assert.Error(t, err)
+	assert.Equal(t, "aggregator error: division by zero", err.Error())
+	assert.Nil(t, result)
 }
