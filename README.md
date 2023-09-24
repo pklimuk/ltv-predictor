@@ -1,3 +1,8 @@
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/pklimuk/ltv-predictor/ci.yml)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/pklimuk/ltv-predictor/codeql.yml?label=codeQL)
+![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/pklimuk/ltv-predictor)
+[![Coverage Status](https://coveralls.io/repos/github/pklimuk/ltv-predictor/badge.svg?branch=main)](https://coveralls.io/github/pklimuk/ltv-predictor?branch=main)
+
 LTV predictor
 ---
 ### Description
