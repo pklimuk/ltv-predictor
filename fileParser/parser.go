@@ -9,6 +9,7 @@ import (
 var (
 	ErrCantOpenFile = errors.New("can't open specified file(%s)")
 	ErrParsingError = errors.New("parsing error: %w")
+	ErrCantReadData = errors.New("can't read data from file: %w")
 )
 
 type Revenues struct {

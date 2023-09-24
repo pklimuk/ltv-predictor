@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	ErrCantReadData = errors.New("can't read data from file: %w")
-	ErrJSONParsing  = errors.New("json parsing error: %w")
+	ErrJSONParsing = errors.New("json parsing error: %w")
 )
 
 type JSONParser struct {

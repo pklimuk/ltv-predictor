@@ -61,7 +61,7 @@ func parseCSV(path string) ([][]string, error) {
 	}
 	records, err := csvReader.ReadAll()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrCantReadData.Error(), err)
 	}
 	return records, nil
 }
