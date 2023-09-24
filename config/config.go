@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 
 	"github.com/pklimuk/ltv-predictor/aggregator"
@@ -13,12 +14,15 @@ import (
 
 const (
 	LTVDataLength = 7
+)
 
-	ErrUnknownModel                = "unknown model"
-	ErrUnknownAggregateBy          = "unknown aggregation field"
-	ErrUnsupportedFileFormat       = "source file format is not supported"
-	ErrPredictionLengthNotPositive = "prediction length should be greater than 0"
-	ErrPredictionLengthTooShort    = "prediction length should be greater than 7"
+var (
+	ErrConfigError                 = errors.New("config error: %w")
+	ErrUnknownModel                = errors.New("unknown model")
+	ErrUnknownAggregateBy          = errors.New("unknown aggregation field")
+	ErrUnsupportedFileFormat       = errors.New("source file format is not supported")
+	ErrPredictionLengthNotPositive = errors.New("prediction length should be greater than 0")
+	ErrPredictionLengthTooShort    = errors.New("prediction length should be greater than 7")
 )
 
 type AppConfig struct {
@@ -32,24 +36,24 @@ type AppConfig struct {
 func CreateAppConfig(f *flagsParser.Flags) (*AppConfig, error) {
 	parser, err := createParser(f)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrConfigError.Error(), err)
 	}
 
 	aggregator, err := createAggregator(f)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrConfigError.Error(), err)
 	}
 
 	predictor, err := createPredictor(f)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrConfigError.Error(), err)
 	}
 
 	outputPrinter := outputPrinter.ConsolePrinter{}
 
 	err = validatePredictionLength(f.PredictionLength)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrConfigError.Error(), err)
 	}
 	return &AppConfig{
 		Parser:           parser,
@@ -67,7 +71,7 @@ func createParser(f *flagsParser.Flags) (fileParser.FileParser, error) {
 	case ".json":
 		return fileParser.JSONParser{Path: f.Source}, nil
 	default:
-		return nil, errors.New(ErrUnsupportedFileFormat)
+		return nil, ErrUnsupportedFileFormat
 	}
 }
 
@@ -78,7 +82,7 @@ func createAggregator(f *flagsParser.Flags) (aggregator.Aggregator, error) {
 	case "campaign":
 		return aggregator.ByCampaignAggregator{}, nil
 	default:
-		return nil, errors.New(ErrUnknownAggregateBy)
+		return nil, ErrUnknownAggregateBy
 	}
 }
 
@@ -89,15 +93,15 @@ func createPredictor(f *flagsParser.Flags) (predictor.Predictor, error) {
 	case "linearRegression":
 		return predictor.LinearRegressor{}, nil
 	default:
-		return nil, errors.New(ErrUnknownModel)
+		return nil, ErrUnknownModel
 	}
 }
 
 func validatePredictionLength(predictionLength int64) error {
 	if predictionLength <= 0 {
-		return errors.New(ErrPredictionLengthNotPositive)
+		return ErrPredictionLengthNotPositive
 	} else if predictionLength <= LTVDataLength {
-		return errors.New(ErrPredictionLengthTooShort)
+		return ErrPredictionLengthTooShort
 	}
 	return nil
 }

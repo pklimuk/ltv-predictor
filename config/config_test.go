@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/pklimuk/ltv-predictor/aggregator"
@@ -14,10 +13,10 @@ import (
 
 func TestCreateAppConfig(t *testing.T) {
 	tests := []struct {
-		name           string
-		flags          *flagsParser.Flags
-		expectedConfig *AppConfig
-		expectedErr    error
+		name              string
+		flags             *flagsParser.Flags
+		expectedConfig    *AppConfig
+		expectedErrString string
 	}{
 		{
 			name: "Valid config",
@@ -34,7 +33,7 @@ func TestCreateAppConfig(t *testing.T) {
 				OutputPrinter:    outputPrinter.ConsolePrinter{},
 				PredictionLength: 10,
 			},
-			expectedErr: nil,
+			expectedErrString: "",
 		},
 		{
 			name: "Invalid prediction length",
@@ -44,8 +43,8 @@ func TestCreateAppConfig(t *testing.T) {
 				Model:            "linearExtrapolation",
 				PredictionLength: -1,
 			},
-			expectedConfig: nil,
-			expectedErr:    errors.New(ErrPredictionLengthNotPositive),
+			expectedConfig:    nil,
+			expectedErrString: "config error: prediction length should be greater than 0",
 		},
 		{
 			name: "Unknown model",
@@ -55,8 +54,8 @@ func TestCreateAppConfig(t *testing.T) {
 				Model:            "invalidModel",
 				PredictionLength: 10,
 			},
-			expectedConfig: nil,
-			expectedErr:    errors.New(ErrUnknownModel),
+			expectedConfig:    nil,
+			expectedErrString: "config error: unknown model",
 		},
 		{
 			name: "Invalid file format",
@@ -66,8 +65,8 @@ func TestCreateAppConfig(t *testing.T) {
 				Model:            "linearExtrapolation",
 				PredictionLength: 10,
 			},
-			expectedConfig: nil,
-			expectedErr:    errors.New(ErrUnsupportedFileFormat),
+			expectedConfig:    nil,
+			expectedErrString: "config error: source file format is not supported",
 		},
 		{
 			name: "Invalid aggregation field",
@@ -77,8 +76,8 @@ func TestCreateAppConfig(t *testing.T) {
 				Model:            "linearExtrapolation",
 				PredictionLength: 10,
 			},
-			expectedConfig: nil,
-			expectedErr:    errors.New(ErrUnknownAggregateBy),
+			expectedConfig:    nil,
+			expectedErrString: "config error: unknown aggregation field",
 		},
 	}
 
@@ -86,10 +85,10 @@ func TestCreateAppConfig(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			config, err := CreateAppConfig(test.flags)
 
-			if test.expectedErr != nil {
+			if test.expectedErrString != "" {
 				assert.Error(t, err)
 				assert.Nil(t, config)
-				assert.EqualError(t, err, test.expectedErr.Error())
+				assert.EqualError(t, err, test.expectedErrString)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, config)
@@ -112,7 +111,7 @@ func TestCreateParser(t *testing.T) {
 	}{
 		{"CSV file", "file.csv", fileParser.CSVParser{}, nil},
 		{"JSON file", "file.json", fileParser.JSONParser{}, nil},
-		{"Unknown file format", "file.txt", nil, errors.New(ErrUnsupportedFileFormat)},
+		{"Unknown file format", "file.txt", nil, ErrUnsupportedFileFormat},
 	}
 
 	for _, test := range tests {
@@ -142,7 +141,7 @@ func TestCreateAggregator(t *testing.T) {
 	}{
 		{"Country aggregator", "country", aggregator.ByCountryAggregator{}, nil},
 		{"Campaign aggregator", "campaign", aggregator.ByCampaignAggregator{}, nil},
-		{"Unknown aggregator", "unknown", nil, errors.New(ErrUnknownAggregateBy)},
+		{"Unknown aggregator", "unknown", nil, ErrUnknownAggregateBy},
 	}
 
 	for _, test := range tests {
@@ -172,7 +171,7 @@ func TestCreatePredictor(t *testing.T) {
 	}{
 		{"Linear extrapolation", "linearExtrapolation", predictor.LinearExtrapolator{}, nil},
 		{"Linear regression", "linearRegression", predictor.LinearRegressor{}, nil},
-		{"Unknown model", "unknown", nil, errors.New(ErrUnknownModel)},
+		{"Unknown model", "unknown", nil, ErrUnknownModel},
 	}
 
 	for _, test := range tests {
@@ -199,9 +198,9 @@ func TestValidatePredictionLength(t *testing.T) {
 		predictionLength int64
 		expectedErr      error
 	}{
-		{"Negative prediction length", -1, errors.New(ErrPredictionLengthNotPositive)},
-		{"Zero prediction length", 0, errors.New(ErrPredictionLengthNotPositive)},
-		{"Too short prediction length", 7, errors.New(ErrPredictionLengthTooShort)},
+		{"Negative prediction length", -1, ErrPredictionLengthNotPositive},
+		{"Zero prediction length", 0, ErrPredictionLengthNotPositive},
+		{"Too short prediction length", 7, ErrPredictionLengthTooShort},
 		{"Valid prediction length", 10, nil},
 	}
 

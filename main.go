@@ -13,7 +13,7 @@ func main() {
 
 	appConfig, err := config.CreateAppConfig(flags)
 	if err != nil {
-		log.Fatalf("An error occurred during configuration: %v", err)
+		log.Fatalf("An error occurred during configuration:\n\t%v", err)
 	}
 
 	processor := processor.Processor{
