@@ -1,7 +1,7 @@
 package predictor
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/pklimuk/ltv-predictor/aggregator"
 	"github.com/shopspring/decimal"
@@ -14,7 +14,7 @@ func (le LinearExtrapolator) Predict(al aggregator.AggregatedLTVsByKey, predicti
 	for k, v := range al {
 		predictedLTV, err := linearExtrapolation(v, decimal.NewFromInt(predictionLength))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf(ErrPredictorError.Error(), err)
 		}
 		result[k] = *predictedLTV
 	}
@@ -22,12 +22,15 @@ func (le LinearExtrapolator) Predict(al aggregator.AggregatedLTVsByKey, predicti
 }
 
 func linearExtrapolation(data []decimal.Decimal, predictLength decimal.Decimal) (*decimal.Decimal, error) {
+	if predictLength.LessThan(decimal.NewFromInt(3)) {
+		return nil, ErrPredictLengthTooShort
+	}
 	// decrease the length by one to take into account index starting from 0
 	predictLength = predictLength.Sub(decimal.NewFromInt(1))
 
 	// at least two points are needed to extrapolate
 	if len(data) < 2 {
-		return nil, errors.New(ErrNotEnoughData)
+		return nil, ErrNotEnoughData
 	}
 	x1, y1 := decimal.NewFromInt(int64(len(data)-1)), data[len(data)-1]
 	x2, y2 := decimal.NewFromInt(int64(len(data)-1)), data[len(data)-1]

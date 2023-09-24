@@ -1,7 +1,7 @@
 package predictor
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/pklimuk/ltv-predictor/aggregator"
 	"github.com/shopspring/decimal"
@@ -15,7 +15,7 @@ func (lr LinearRegressor) Predict(al aggregator.AggregatedLTVsByKey, predictionL
 	for k, v := range al {
 		predictedLTV, err := linearRegression(v, float64(predictionLength))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf(ErrPredictorError.Error(), err)
 		}
 		result[k] = *predictedLTV
 	}
@@ -23,12 +23,15 @@ func (lr LinearRegressor) Predict(al aggregator.AggregatedLTVsByKey, predictionL
 }
 
 func linearRegression(data []decimal.Decimal, predictLength float64) (*decimal.Decimal, error) {
+	if predictLength < 3 {
+		return nil, ErrPredictLengthTooShort
+	}
 	// decrease the length by one to take into account index starting from 0
 	predictLength--
 
 	// at least two points are needed for prediction
 	if len(data) < 2 {
-		return nil, errors.New(ErrNotEnoughData)
+		return nil, ErrNotEnoughData
 	}
 
 	// conversion to float64 could affect the precision, but it is not critical for this task

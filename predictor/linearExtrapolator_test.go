@@ -42,5 +42,23 @@ func TestLinearExtrapolator_Predict_NotEnoughData(t *testing.T) {
 
 	// Assert that there is no error
 	assert.Error(t, err)
-	assert.Equal(t, ErrNotEnoughData, err.Error())
+	assert.Equal(t, "predictor error: not enough data to make prediction", err.Error())
+}
+
+func TestLinearExtrapolator_Predict_PredictionLengthTooShort(t *testing.T) {
+	// Create a sample input for the test
+	aggregatedData := aggregator.AggregatedLTVsByKey{
+		"campaign1": []decimal.Decimal{decimal.NewFromInt(1), decimal.NewFromInt(2), decimal.NewFromInt(3), decimal.NewFromInt(4), decimal.NewFromInt(5),
+			decimal.NewFromInt(5), decimal.NewFromInt(5)},
+		"campaign2": []decimal.Decimal{decimal.NewFromInt(10), decimal.NewFromInt(20)},
+	}
+
+	// Create a LinearExtrapolator instance
+	le := LinearExtrapolator{}
+
+	_, err := le.Predict(aggregatedData, 2)
+
+	// Assert that there is no error
+	assert.Error(t, err)
+	assert.Equal(t, "predictor error: prediction length should be greater than 2", err.Error())
 }
