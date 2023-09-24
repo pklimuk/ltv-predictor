@@ -25,3 +25,9 @@ jobs:
 
       - name: Test and Coverage
         run: make coverage
+      
+      - name: Send coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: $GITHUB_WORKSPACE/coverage-all.out
