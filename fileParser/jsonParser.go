@@ -2,10 +2,17 @@ package fileParser
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/shopspring/decimal"
+)
+
+var (
+	ErrCantReadData = errors.New("can't read data from file: %w")
+	ErrJSONParsing  = errors.New("json parsing error: %w")
 )
 
 type JSONParser struct {
@@ -28,7 +35,7 @@ type jsonData struct {
 func (p JSONParser) Parse() ([]Revenues, error) {
 	data, err := parseJSONFile(p.Path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrParsingError.Error(), err)
 	}
 	revenues := make([]Revenues, 0, len(data))
 	for _, rec := range data {
@@ -48,18 +55,18 @@ func convertJSONDataToRevenue(d jsonData) Revenues {
 func parseJSONFile(path string) ([]jsonData, error) {
 	jsonFile, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrCantOpenFile.Error(), path)
 	}
 	defer jsonFile.Close()
 
 	byteValue, err := io.ReadAll(jsonFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrCantReadData.Error(), err)
 	}
 	var data []jsonData
 	err = json.Unmarshal(byteValue, &data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrJSONParsing.Error(), err)
 	}
 	return data, nil
 }

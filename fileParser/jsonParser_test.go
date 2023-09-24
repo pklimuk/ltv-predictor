@@ -122,7 +122,7 @@ func TestJSONParser_Parse_Invalid_JSON(t *testing.T) {
 
 		revenues, err := parser.Parse()
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, os.ErrNotExist)
+		assert.Equal(t, "parsing error: can't open specified file(invalid/path/to/file.json)", err.Error())
 		assert.Empty(t, revenues)
 	})
 }

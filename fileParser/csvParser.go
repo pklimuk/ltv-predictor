@@ -3,6 +3,7 @@ package fileParser
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -18,8 +19,9 @@ const (
 	startLtvIndex   = 3
 )
 
-const (
-	ErrNotEnoughFields = "not enough fields in the record"
+var (
+	ErrCantReadHeader  = errors.New("can't read header row")
+	ErrNotEnoughFields = errors.New("not enough fields in the record")
 )
 
 type CSVParser struct {
@@ -29,7 +31,7 @@ type CSVParser struct {
 func (p CSVParser) Parse() ([]Revenues, error) {
 	records, err := parseCSV(p.Path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrParsingError.Error(), err)
 	}
 	revenues := make([]Revenues, 0, len(records))
 	for _, record := range records {
@@ -47,7 +49,7 @@ func (p CSVParser) Parse() ([]Revenues, error) {
 func parseCSV(path string) ([][]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(ErrCantOpenFile.Error(), path)
 	}
 	defer file.Close()
 
@@ -55,7 +57,7 @@ func parseCSV(path string) ([][]string, error) {
 	// Read and skip header row
 	_, err = csvReader.Read()
 	if err != nil {
-		return nil, err
+		return nil, ErrCantReadHeader
 	}
 	records, err := csvReader.ReadAll()
 	if err != nil {
@@ -66,7 +68,7 @@ func parseCSV(path string) ([][]string, error) {
 
 func convertCSVRecordToRevenues(record []string) (*Revenues, error) {
 	if len(record) != fieldsNumber {
-		return nil, errors.New(ErrNotEnoughFields)
+		return nil, ErrNotEnoughFields
 	}
 	campaignID := record[campaignIDIndex]
 	country := record[countryIndex]

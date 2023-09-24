@@ -1,7 +1,14 @@
 package fileParser
 
 import (
+	"errors"
+
 	"github.com/shopspring/decimal"
+)
+
+var (
+	ErrCantOpenFile = errors.New("can't open specified file(%s)")
+	ErrParsingError = errors.New("parsing error: %w")
 )
 
 type Revenues struct {

@@ -26,6 +26,6 @@ func main() {
 
 	err = processor.Process()
 	if err != nil {
-		log.Fatalf("An error occurred during processing: %v", err)
+		log.Fatalf("An error occurred during processing:\n\t%v", err)
 	}
 }

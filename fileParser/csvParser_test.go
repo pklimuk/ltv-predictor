@@ -82,7 +82,7 @@ func TestCSVParser_Parse_InvalidFile(t *testing.T) {
 
 	revenues, err := parser.Parse()
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, os.ErrNotExist)
+	assert.Equal(t, "parsing error: can't open specified file(invalid_file.csv)", err.Error())
 	assert.Nil(t, revenues)
 }
 
@@ -103,7 +103,7 @@ func TestCSVParser_Parse_EmptyCSV(t *testing.T) {
 
 	revenues, err := parser.Parse()
 	assert.Error(t, err)
-	assert.Equal(t, "EOF", err.Error())
+	assert.ErrorIs(t, err, ErrCantReadHeader)
 	assert.Nil(t, revenues)
 }
 
